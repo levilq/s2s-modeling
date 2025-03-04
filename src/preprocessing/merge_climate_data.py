@@ -1,7 +1,13 @@
 import xarray as xr
 import os
 import numpy as np
+import rioxarray
+import matplotlib
+matplotlib.use('TkAgg')  # Switch to TkAgg backend
+import matplotlib.pyplot as plt
+from landlab import RasterModelGrid
 
+# (Your existing code up to precip_annual_avg_33yr remains unchanged)
 # 1 Load and Inspect the Dataset
 data_dir = os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data', 'GPCP_3.2'))
 
@@ -38,20 +44,7 @@ ds_30yr = precip_monthly_tot.sel(time=slice('1990-01', '2023-12'))
 precip_climatology_monthly = ds_30yr.groupby('time.month').mean(dim='time')
 precip_climatology_monthly.name = 'precip_climo_mm'
 
-
-
-import xarray as xr
-import os
-import numpy as np
-import rioxarray
-import matplotlib
-matplotlib.use('TkAgg')  # Switch to TkAgg backend
-import matplotlib.pyplot as plt
-from landlab import RasterModelGrid
-
-# (Your existing code up to precip_annual_avg_33yr remains unchanged)
-
-# Assign coordinate system and set spatial dims
+# Assign coordinate system and set spatial dims for climatology
 precip_climatology_monthly.rio.write_crs("EPSG:4326", inplace=True)
 precip_climatology_monthly = precip_climatology_monthly.rio.set_spatial_dims(x_dim="lon", y_dim="lat")
 
@@ -70,7 +63,19 @@ rainfall_rate = precip_annual_avg_33yr.values.flatten()
 # Add field with updated syntax
 mg.add_field("rainfall__rate", rainfall_rate, at="node", units="mm/yr")
 
+# Save to TIFF
+output_dir = "C:/Users/loiq.amonbekov/PycharmProjects/s2s-modeling/data/raw"
+output_file = os.path.join(output_dir, "precip_annual_avg_33yr.tif")
+
+# Ensure the output directory exists (create it if it doesn’t)
+os.makedirs(output_dir, exist_ok=True)
+
+# Assign CRS, set spatial dims, and save to the specific folder
+precip_annual_avg_33yr = precip_annual_avg_33yr.rio.set_spatial_dims(x_dim="lon", y_dim="lat")
+precip_annual_avg_33yr.rio.write_crs("EPSG:4326", inplace=True)
+precip_annual_avg_33yr.rio.to_raster(output_file)
+
 # Plot
 precip_annual_avg_33yr.plot()
-plt.title("Mean Annual Precipitation (1991–2033)")
+plt.title("Mean Annual Precipitation (1991–2020)")
 plt.show()
