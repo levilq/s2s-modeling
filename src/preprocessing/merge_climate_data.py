@@ -7,7 +7,6 @@ matplotlib.use('TkAgg')  # Switch to TkAgg backend
 import matplotlib.pyplot as plt
 from landlab import RasterModelGrid
 
-# (Your existing code up to precip_annual_avg_33yr remains unchanged)
 # 1 Load and Inspect the Dataset
 data_dir = os.path.abspath(os.path.join(os.getcwd(), '..', '..', 'data', 'GPCP_3.2'))
 
@@ -21,8 +20,8 @@ if not nc_files:
 ds = xr.open_mfdataset(nc_files, combine='by_coords', engine='netcdf4', chunks={})
 print("Available variables:", list(ds.data_vars))  # Check available variable names
 
-# 2 Subset Spatially (Pamir Plateau Region)
-ds_pamir = ds.sel(lat=slice(40, 35), lon=slice(68, 75))
+# 2 Subset Spatially (Pamir Plateau Region) - Adjusted range
+ds_pamir = ds.sel(lat=slice(42, 32), lon=slice(64, 77))
 print(ds_pamir)
 
 # 3 Convert Units to Monthly Totals
